@@ -31,5 +31,9 @@ public class Sport {
     @ManyToMany(fetch = FetchType.EAGER)
     private Collection<Terrain> terrains = new ArrayList<>();
 
+ // 1
+    @Column(name = "tarif", nullable = false)
+    private double tarif;
+
 
 }
