@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,4 +23,22 @@ public class CarnetId implements Serializable {
 
     @Column(name = "id_sport", nullable = false)
     private Integer idSport;
+    
+    //  6
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CarnetId carnetId = (CarnetId) o;
+        return Objects.equals(idClient, carnetId.idClient) &&
+                Objects.equals(idSport, carnetId.idSport);
+    }
+
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(idClient, idSport);
+    }
+
 }

@@ -1,5 +1,7 @@
 package ma.iao.entities;
 
+import java.io.Serializable;
+
 // import javax.persistence.Table;
 
 import javax.persistence.*;
@@ -12,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Carnet {
+public class Carnet implements Serializable{
 
     @EmbeddedId 
     private CarnetId id;
