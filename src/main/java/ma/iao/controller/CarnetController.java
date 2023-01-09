@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,9 +38,6 @@ public class CarnetController {
     private CarnetRepository carnetRepository;
     
 
-   
-    
-    
     
     
     // Opération de création (create)
@@ -48,7 +46,16 @@ public class CarnetController {
     public Carnet createCarnet(@RequestBody Carnet carnet) {
         return carnetService.createCarnet(carnet);
     }
-
+    
+    // Opération de mise à jour (update)
+    @PutMapping
+    public Carnet updateCarnet(@RequestBody Carnet carnet) {
+        return carnetService.updateCarnet(carnet);
+    }
+    
+    
+    // Recherche par carnetId
+    
     @GetMapping(value="/{idClient}/{idSport}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Optional<Carnet> getCarnetById(@PathVariable Integer idClient, @PathVariable Integer idSport) {
@@ -88,17 +95,41 @@ public class CarnetController {
 	 * idClient, @PathVariable Integer idSport) { CarnetId id = new
 	 * CarnetId(idClient, idSport); return carnetService.getCarnetById(id); }
 	 */
-
+/*
     @GetMapping(value = "/all", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Carnet> getAllCarnets() {
         return carnetService.getAllCarnets();
+    }*/
+
+    @GetMapping(value = "/all") 
+    public ResponseEntity<List<Carnet>> getAllCarnets() {
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(carnetService.getAllCarnets()); }
+    
+  
+    //Methode accept v5.0 de spring
+    @GetMapping
+    public ResponseEntity<List<Carnet>> getAllCarnets(
+         //   @RequestHeader(value="Accept", defaultValue="*/*") String acceptHeader,
+            @RequestHeader(value="Content-Type", defaultValue="application/xml") String contentTypeHeader) {
+
+        List<Carnet> carnets = carnetService.getAllCarnets();
+
+        // Définissez le type de contenu que vous souhaitez renvoyer en fonction des en-têtes Accept et Content-Type
+       // MediaType accept = MediaType.parseMediaType(acceptHeader);
+        MediaType contentType = MediaType.parseMediaType(contentTypeHeader);
+
+        // Renvoyez les données dans le format souhaité
+        return ResponseEntity
+                .ok()
+                .contentType(contentType)
+                //.accept(accept)
+                .body(carnets);
     }
 
-    // Opération de mise à jour (update)
-    @PutMapping
-    public Carnet updateCarnet(@RequestBody Carnet carnet) {
-        return carnetService.updateCarnet(carnet);
-    }
+    //s
+    
+    
+
     
     // Opération de suppression (delete)
     @DeleteMapping("/{id}")
