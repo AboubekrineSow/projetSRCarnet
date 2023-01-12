@@ -20,15 +20,12 @@ public class CarnetServices {
     @Autowired
     private CarnetRepository carnetRepository;
     
-    
-    //3
-    
-    // Opération de création (create)
+   
     public Carnet createCarnet(Carnet carnet) {
         return carnetRepository.save(carnet);
     }
 
-    // Opération de lecture (read)
+
     public Optional<Carnet> getCarnetById(CarnetId id) {
         return carnetRepository.findById(id);
     }
@@ -36,12 +33,10 @@ public class CarnetServices {
         return carnetRepository.findAll();
     }
 
-    // Opération de mise à jour (update)
     public Carnet updateCarnet(Carnet carnet) {
         return carnetRepository.saveAndFlush(carnet);
     }
 
-    // Opération de suppression (delete)
     public void deleteCarnetById(CarnetId id) {
         carnetRepository.deleteById(id);
     }
@@ -53,71 +48,37 @@ public class CarnetServices {
     }
     
     
-    
-    
-    
-    
-    //5
-  
-        
-
-        public void acheterTicket(CarnetId id, int nombre) {
-            Carnet carnet = getCarnetById(id).orElseThrow(() -> new RuntimeException("Carnet introuvable"));
-            Sport sport = carnet.getIdSport();
-            double tarif = sport.getTarif();
-            carnet.setNombreEntrees(carnet.getNombreEntrees() - nombre);
-            updateCarnet(carnet);
+    public Carnet buyTicket(Integer idClient, Integer idSport, Integer nombres) {
+        CarnetId id = new CarnetId(idClient, idSport);
+        Optional<Carnet> carnet = carnetRepository.findById(id);
+        if (carnet.isPresent()) {
+            Carnet c = carnet.get();
+            if (c.getNombreEntrees() >= nombres) {
+                // Il y a assez de tickets dans le carnet, on peut effectuer l'achat
+                c.setNombreEntrees(c.getNombreEntrees() - nombres);
+                carnetRepository.save(c);
+                return c;
+            } else {
+                // Il n'y a pas assez de tickets dans le carnet
+                return null;
+            }
+        } else {
+            // Carnet non trouvé
+            return null;
         }
     }
+    
+  
 
-    
-    
-    
-	/*3
-	 * public List<Carnet> getAllCarnets(){ return carnetRepository.findAll(); }
-	 * 
-	 * public void saveCarnet(Carnet carnet){ carnetRepository.save(carnet); }
-	 * 
-	 * 
-	 * 
-	 * public void deleteCarnet(int id) { carnetRepository.deleteById(id); }
-	 */
-    
-    
-    
-    
-	/*
-	 * @Autowired private SportRepository sportRepository;
-	 * 
-	 * @Autowired private ClientRepository clientRepository;
-	 * 
-	 * public void initcarnet() {
-	 * 
-	 * clientRepository.findAll().forEach(client->{
-	 * sportRepository.findAll().forEach(sport->{
-	 * 
-	 * Carnet carnet = new Carnet(); carnet.setIdClient(client);
-	 * carnet.setIdSport(sport); carnet.setNombreEntrees(9);
-	 * 
-	 * saveCarnet(carnet); });
-	 * 
-	 * });
-	 * 
-	 * }
-	 */
-    
-	/*
-	 * public Carnet getCarnet(int id) { return carnetRepository.findById(id).get();
-	 * }
-	 */
-	/*
-	 * public void updateCarnet(Carnet carnet){
-	 * carnetRepository.updateCarnets(carnet); }
-	 */
-   
-    
-    
-    
-    
+
+        
+      
+
+            
+        
+}
+
+
+
     
 

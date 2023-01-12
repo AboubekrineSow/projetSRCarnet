@@ -34,28 +34,23 @@ public class CarnetController {
     @Autowired
     private CarnetServices carnetService;
     
-    @Autowired
-    private CarnetRepository carnetRepository;
+
     
 
     
-    
-    // Opération de création (create)
+
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Carnet createCarnet(@RequestBody Carnet carnet) {
         return carnetService.createCarnet(carnet);
     }
-    
-    // Opération de mise à jour (update)
+ 
     @PutMapping
     public Carnet updateCarnet(@RequestBody Carnet carnet) {
         return carnetService.updateCarnet(carnet);
     }
     
-    
-    // Recherche par carnetId
-    
+        
     @GetMapping(value="/{idClient}/{idSport}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Optional<Carnet> getCarnetById(@PathVariable Integer idClient, @PathVariable Integer idSport) {
@@ -64,74 +59,15 @@ public class CarnetController {
     }
 
     
-	/* format PDF
-	 * @GetMapping("re/{idClient}/{idSport}") public void
-	 * getCarnetById(@PathVariable Integer idClient, @PathVariable Integer idSport,
-	 * HttpServletResponse response) { CarnetId id = new CarnetId(idClient,
-	 * idSport); Optional<Carnet> carnet = carnetService.getCarnetById(id);
-	 * 
-	 * response.setContentType(MediaType.APPLICATION_PDF_VALUE); // autres
-	 * instructions pour gérer la réponse ici...
-	 * 
-	 * }
-	 */
-    
-    // Opération de lecture (read)
-	/*
-	 * ERROR
-	 * @GetMapping(value="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
-	 * produces = MediaType.APPLICATION_JSON_VALUE) public Optional<Carnet>
-	 * getCarnetById(@PathVariable CarnetId id) { return
-	 * carnetService.getCarnetById(id); }
-	 */
-    
-    
-	/*
-	 * CORRECTLY
-	 * 
-	 * @GetMapping(value="/{idClient}/{idSport}", consumes =
-	 * MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_PDF_VALUE)
-	 * public Optional<Carnet> getCarnetById(@PathVariable Integer
-	 * idClient, @PathVariable Integer idSport) { CarnetId id = new
-	 * CarnetId(idClient, idSport); return carnetService.getCarnetById(id); }
-	 */
-/*
-    @GetMapping(value = "/all", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Carnet> getAllCarnets() {
-        return carnetService.getAllCarnets();
-    }*/
+	
 
     @GetMapping(value = "/all") 
     public ResponseEntity<List<Carnet>> getAllCarnets() {
 		return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(carnetService.getAllCarnets()); }
     
   
-    //Methode accept v5.0 de spring
-    @GetMapping
-    public ResponseEntity<List<Carnet>> getAllCarnets(
-         //   @RequestHeader(value="Accept", defaultValue="*/*") String acceptHeader,
-            @RequestHeader(value="Content-Type", defaultValue="application/xml") String contentTypeHeader) {
-
-        List<Carnet> carnets = carnetService.getAllCarnets();
-
-        // Définissez le type de contenu que vous souhaitez renvoyer en fonction des en-têtes Accept et Content-Type
-       // MediaType accept = MediaType.parseMediaType(acceptHeader);
-        MediaType contentType = MediaType.parseMediaType(contentTypeHeader);
-
-        // Renvoyez les données dans le format souhaité
-        return ResponseEntity
-                .ok()
-                .contentType(contentType)
-                //.accept(accept)
-                .body(carnets);
-    }
-
-    //s
-    
-    
-
-    
-    // Opération de suppression (delete)
+   
+  
     @DeleteMapping("/{id}")
     public void deleteCarnetById(@PathVariable CarnetId id) {
         carnetService.deleteCarnetById(id);
@@ -146,96 +82,40 @@ public class CarnetController {
     }
 
     
-
-    
-    
-        @PostMapping(value="/carnets/{idClient}/{idSport}/buy")
-        public ResponseEntity<Carnet> buyTicket(@PathVariable Integer idClient, @PathVariable Integer idSport, @RequestBody Integer quantity) {
-            CarnetId id = new CarnetId(idClient, idSport);
-            Optional<Carnet> carnet = carnetRepository.findById(id);
-            if (carnet.isPresent()) {
-                Carnet c = carnet.get();
-                if (c.getNombreEntrees() >= quantity) {
-                    // Il y a assez de tickets dans le carnet, on peut effectuer l'achat
-                    c.setNombreEntrees(c.getNombreEntrees() - quantity);
-                    carnetRepository.save(c);
-                    return ResponseEntity.ok(c);
-                } else {
-                    // Il n'y a pas assez de tickets dans le carnet
-                    return ResponseEntity.badRequest().build();
-                }
-            } else {
-                // Carnet non trouvé
-                return ResponseEntity.notFound().build();
-            }
+    @PostMapping(value="/{idClient}/{idSport}/buy")
+    public ResponseEntity<Carnet> buyTicket(@PathVariable Integer idClient, @PathVariable Integer idSport, @RequestBody Integer nombres) {
+        Carnet carnet = carnetService.buyTicket(idClient, idSport, nombres);
+        if(carnet != null) {
+            return ResponseEntity.ok(carnet);
         }
-
-    
-        
-        
-		/*
-		 * @PostMapping("/acheter") public void acheterTicket(@RequestBody CarnetId
-		 * id, @RequestBody int nombre) { carnetService.acheterTicket(id, nombre); }
-		 */
-        
-        
-        
-        
-        
-        
-        
-        
-    
-	/*4
-	 * @GetMapping public ResponseEntity<List<Carnet>> getAllCarnets() { return
-	 * ResponseEntity.ok(carnetServices.getAllCarnets()); }
-	 * 
-	 * @PostMapping public ResponseEntity<String> saveClient(@RequestBody Carnet
-	 * carnet) { carnetServices.saveCarnet(carnet); return
-	 * ResponseEntity.ok("done"); }
-	 * ---------------------------------------------
-	 * 
-	 * @GetMapping("/carnets/{idClient}/{idSport}")
-	public ResponseEntity<Carnet> getCarnetById(@PathVariable Integer idClient, @PathVariable Integer idSport) {
-    CarnetId id = new CarnetId(idClient, idSport);
-    Optional<Carnet> carnet = carnetRepository.findById(id);
-    if (carnet.isPresent()) {
-        return ResponseEntity.ok(carnet.get());
-    } else {
-        return ResponseEntity.notFound().build();
+        else {
+            return ResponseEntity.badRequest().build();
+        }
     }
     
     
-}
-   
-	
-	 *
-	 *
-	 *-----------------------------
-	 *@PostMapping("/carnets/{idClient}/{idSport}/buy")
-public ResponseEntity<Carnet> buyTicket(@PathVariable Integer idClient, @PathVariable Integer idSport, @RequestBody Integer quantity) {
-    CarnetId id = new CarnetId(idClient, idSport);
-    Optional<Carnet> carnet = carnetRepository.findById(id);
-    if (carnet.isPresent()) {
-        Carnet c = carnet.get();
-        if (c.getNombreEntrees() >= quantity) {
-            c.setNombreEntrees(c.getNombreEntrees() - quantity);
-            carnetRepository.save
-
-	 *-----------------------------------
-	 *CarnetId id = new CarnetId(idClient, idSport);
-Carnet carnet = carnetRepository.findById(id);
-if (carnet == null) {
-    // Carnet non trouvé
-    return ResponseEntity.notFound().build();
-} else {
-    // Carnet trouvé, vous pouvez continuer à mettre à jour le carnet
-}
-
-
-
-
-
+    
+    
+    
+    //Methode accept marche avec  v5.0 de spring 
+	/*
+	 * @GetMapping public ResponseEntity<List<Carnet>> getAllCarnets(
+	 * 
+	 * @RequestHeader(value="Accept", defaultValue="*") String acceptHeader,
+	 * 
+	 * @RequestHeader(value="Content-Type", defaultValue="application/json") String
+	 * contentTypeHeader) {
+	 * 
+	 * List<Carnet> carnets = carnetService.getAllCarnets();
+	 * 
+	 * MediaType accept = MediaType.parseMediaType(acceptHeader); MediaType
+	 * contentType = MediaType.parseMediaType(contentTypeHeader);
+	 * 
+	 * 
+	 * return ResponseEntity .ok() .contentType(contentType) .accept(accept)
+	 * .body(carnets); }
 	 */
+    
+
 
 }
